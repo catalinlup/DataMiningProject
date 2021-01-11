@@ -4,6 +4,7 @@ from enum import Enum
 class SimilarityMeasureType(Enum):
     COSINE_SIMILARITY = 1
     MEANLESS_COSINE_SIMILARITY = 2
+    PEARSONS_SIMILARITY = 3
 
 class FormulaFactory:
     """
@@ -54,11 +55,38 @@ class FormulaFactory:
             return sub_mean(vec)
 
 
-
-
         cosine_similarity = self.create_cosine_similarity_measure()
 
         return lambda vec_x, vec_y: cosine_similarity(make_meanless(vec_x), make_meanless(vec_y))
+
+    def create_pearson_similarity_measure(self):
+        """
+        Creates a function that computes the pearson similarity between 2 vectors.
+
+        :return: a function the performs the described action.
+        """
+
+        def row_mean(vec:np.array, sim_items:np.array):
+            vec = vec.astype('float64')
+
+            mean = vec.sum()/len(vec != 0)
+
+            return sim_items - mean
+
+        def pearson_similarity(vec_x:np.array, vec_y:np.array):
+            sim_items = np.where((vec_x>0) == (vec_y>0))
+
+            xv = row_mean(vec_x, vec_x[sim_items])
+            yv = row_mean(vec_y, vec_y[sim_items])
+            
+            xvss = (xv*xv).sum(axis=0)
+            yvss = (xv*xv).sum(axis=0)
+            result = np.matmul(xv.transpose(), yv) / np.sqrt(xvss * yvss)
+
+            return np.maximum(np.minimum(result, 1.0), -1.0)
+
+        return pearson_similarity
+
 
     def create_similarity_measure(self, similarity_measure_type: SimilarityMeasureType):
         """
@@ -73,6 +101,10 @@ class FormulaFactory:
 
         elif similarity_measure_type is SimilarityMeasureType.MEANLESS_COSINE_SIMILARITY:
             return self.create_meanless_cosine_similarity_measure()
+
+        elif similarity_measure_type is SimilarityMeasureType.PEARSONS_SIMILARITY:
+            return self.create_meanless_cosine_similarity_measure()
+            #return self.create_pearson_similarity_measure()
 
         else:
             raise Exception("Unsuported similarity type!")

@@ -23,6 +23,17 @@ class MyTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(0.489, sim(u1, u2), delta=0.1)
 
+    def test_pearson_similarity(self):
+        u1 = np.array([5,1,0,4,3])
+        u2 = np.array([3,1,2,0,0])
+
+        formula_factory = FormulaFactory()
+        sim = formula_factory.create_similarity_measure(SimilarityMeasureType.PEARSONS_SIMILARITY)
+        
+        print("similarity: ", sim)
+
+        self.assertAlmostEqual(1, sim(u1, u2), delta=0.1)
+
     def test_weighted_avg(self):
         values = [(0.39, 5), (0.27, 4)]
         formula_factory = FormulaFactory()

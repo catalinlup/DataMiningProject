@@ -25,7 +25,7 @@ class TestNaiveUserCollaborativeFiltering(unittest.TestCase):
 
     movie_id_to_col = {1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8}
 
-    instances_to_predict = np.array([(1, 1), (2, 1), (2, 2), (2, 8), (4, 5)])
+    instances_to_predict = np.array([(1, 1), (2, 1), (2, 2), (2, 8), (4, 5)]) #where the array is 0
 
     def test_prediction(self):
         data_loader = Mock()
@@ -38,6 +38,7 @@ class TestNaiveUserCollaborativeFiltering(unittest.TestCase):
 
         prediction_strategy.add_data_loader(data_loader)
 
+        #the ratings given to the movies
         expected_prediction = {
             (1, 1): 3.01,
             (2, 1): 4.59,
